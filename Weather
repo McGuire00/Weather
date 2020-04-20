@@ -1,0 +1,58 @@
+import requests
+import datetime
+import smtplib
+from bs4 import BeautifulSoup
+
+def time():
+    current_time = datetime.datetime.now()
+    print(current_time.strftime("%I:%M:%S %p"))
+time()
+
+
+
+
+session = requests.session()
+
+#REPLACE URL WITH LINK TO YOUR CITY FROM WEATHER.COM
+url = "https://weather.com/weather/tenday/l/Atlanta+GA?canonicalCityId=508c6a2d4ca8386de1772c4316073b1448fb270ee2d264d01c7b2a4b33073688"
+
+site = session.get(url)
+soup = BeautifulSoup(site.text, "lxml")
+table = soup.find("table", class_="twc-table")
+
+data = table.find_all("tr", class_="clickable closed")[0].find("td", class_="description")["title"]
+
+print(data)
+
+
+#ENTER CREDINTIALS FOR GMAIL ACCOUNT TO SEND SMS TO PHONE
+EMAIL_ADDRESS = "username@gmail.com"
+PASSWORD = "password"
+
+#ENTER PHONE NUMBER FOLLOWED BY CORRECT EMAIL GETAWAY BY PHONE PROVIDER
+#AT&T: number@txt.att.net
+#T-Mobile: number@tmomail.net
+#number@vtext.com
+#number@messaging.sprintpcs.com
+#number@sms.cricketwireless.net
+
+phone = "1234567890@vtext.com"
+
+def send_email(subject, msg):
+    try:
+        server = smtplib.SMTP('smtp.gmail.com:587')
+        server.ehlo()
+        server.starttls()
+        server.login(EMAIL_ADDRESS, PASSWORD)
+        message = 'Subject: {}\n\n{}'.format(subject, msg)
+        server.sendmail(EMAIL_ADDRESS, phone, message)
+        server.quit()
+        print("Success: Info sent!")
+    except:
+        print("Email failed to send.")
+
+
+subject = "Weather"
+msg = data
+
+#send_email(subject, msg)
